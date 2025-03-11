@@ -5,7 +5,9 @@ target 'CountriEZ' do
   
   use_frameworks!
 
-  # Pods for CountriEZ
+  pod 'FirebaseAnalytics'
+  pod 'FirebaseAuth'
+  pod 'GoogleSignIn'
 
   target 'CountriEZTests' do
     inherit! :search_paths
