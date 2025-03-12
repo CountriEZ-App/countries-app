@@ -1,0 +1,15 @@
+{
+  "originHash" : "3d3c603edb67053f4a65ef6d87fe10294e34b735d1034bf7c05a4ee5757f8298",
+  "pins" : [
+    {
+      "identity" : "lottie-ios?tab=readme-ov-file",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/airbnb/lottie-ios?tab=readme-ov-file",
+      "state" : {
+        "revision" : "047aa81b77adcbf583a966dfef620d17650cc656",
+        "version" : "4.5.1"
+      }
+    }
+  ],
+  "version" : 3
+}

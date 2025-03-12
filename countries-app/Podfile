@@ -8,7 +8,6 @@ target 'CountriEZ' do
   pod 'FirebaseAnalytics'
   pod 'FirebaseAuth'
   pod 'GoogleSignIn'
-  pod 'lottie-ios'
 
   target 'CountriEZTests' do
     inherit! :search_paths
