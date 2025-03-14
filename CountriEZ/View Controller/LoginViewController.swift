@@ -7,14 +7,9 @@
 
 import UIKit
 
-class LoginViewController: UIViewController {
+class LoginViewController: UIViewController, LoginViewModelDelegate {
     
-    private lazy var contentView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        
-        return view
-    }()
+    private let viewModelLogin = LoginViewModel()
     
     private lazy var nameApp: UILabel = {
         let label = UILabel()
@@ -34,6 +29,7 @@ class LoginViewController: UIViewController {
         textField.font = .systemFont(ofSize: 15)
         textField.layer.cornerRadius = 5
         textField.layer.masksToBounds = true
+        textField.autocapitalizationType = .none
         textField.translatesAutoresizingMaskIntoConstraints = false
         
         return textField
@@ -46,25 +42,42 @@ class LoginViewController: UIViewController {
         textField.font = .systemFont(ofSize: 15)
         textField.layer.cornerRadius = 5
         textField.layer.masksToBounds = true
+        textField.autocapitalizationType = .none
+        textField.isSecureTextEntry = true
         textField.translatesAutoresizingMaskIntoConstraints = false
         
         return textField
     }()
     
-    private lazy var emailButton: UIButton = {
+    private lazy var signInButton: UIButton = {
         let button = UIButton()
         var config = UIButton.Configuration.plain()
-        config.title = " E-mail"
-        config.image = UIImage(systemName: "envelope.fill")
+        config.title = "Sign Up"
         config.baseForegroundColor = .black
-        config.buttonSize = .mini
+        
+        button.configuration = config
+        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
+        button.backgroundColor = .systemBlue
+        button.layer.cornerRadius = 10
+        button.layer.masksToBounds = true
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(didTapSignUp), for: .touchUpInside)
+        
+        return button
+    }()
+    
+    private lazy var logInButton: UIButton = {
+        let button = UIButton()
+        var config = UIButton.Configuration.plain()
+        config.title = "Log In"
+        config.baseForegroundColor = .black
         
         button.configuration = config
         button.backgroundColor = .systemMint
         button.layer.cornerRadius = 10
         button.layer.masksToBounds = true
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(didTapEmail), for: .touchUpInside)
+        button.addTarget(self, action: #selector(didTapLogin), for: .touchUpInside)
         
         return button
     }()
@@ -74,7 +87,6 @@ class LoginViewController: UIViewController {
         var config = UIButton.Configuration.plain()
         config.title = " Gmail"
         config.baseForegroundColor = .black
-        config.buttonSize = .mini
         
         button.configuration = config
         button.backgroundColor = .white
@@ -90,7 +102,6 @@ class LoginViewController: UIViewController {
         config.title = " Apple"
         config.image = UIImage(systemName: "apple.logo")
         config.baseForegroundColor = .white
-        config.buttonSize = .mini
         
         button.configuration = config
         button.backgroundColor = .black
@@ -131,12 +142,30 @@ class LoginViewController: UIViewController {
     
         return stack
     }()
+    
+    private lazy var buttonsLogSignStack: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .horizontal
+        stack.alignment = .fill
+        stack.distribution = .fill
+        stack.spacing = 20
+    
+        return stack
+    }()
 
+    
+    init() {
+        super.init(nibName: nil, bundle: nil)
+    }
+        
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .tertiarySystemGroupedBackground
-        
+        viewModelLogin.delegate = self
         setUpView()
     }
 
@@ -175,22 +204,46 @@ class LoginViewController: UIViewController {
     }
     
     func setUpButtonsStack () -> UIStackView {
-        buttonsStack.addArrangedSubview(emailButton)
+        buttonsLogSignStack.addArrangedSubview(signInButton)
         NSLayoutConstraint.activate([
-            emailButton.heightAnchor.constraint(equalToConstant: 45)
+            signInButton.heightAnchor.constraint(equalToConstant: 45)
         ])
         
+        buttonsLogSignStack.addArrangedSubview(logInButton)
+        buttonsStack.addArrangedSubview(buttonsLogSignStack)
         buttonsStack.addArrangedSubview(gmailButton)
         buttonsStack.addArrangedSubview(appleButton)
         
         return buttonsStack
     }
     
+    @objc
+    func didTapSignUp () {
+        guard let emailUser = textFieldEmail.text, !emailUser.isEmpty, let passwordUser = textFieldPassword.text, !passwordUser.isEmpty else { return }
+        
+        viewModelLogin.singUpUser(email: emailUser, password: passwordUser)
+        view.endEditing(true)
+        textFieldEmail.text = ""
+        textFieldPassword.text = ""
+    }
     
     @objc
-    func didTapEmail () {
-        let tabBarVC = TabBarViewController()
-        navigationController?.pushViewController(tabBarVC, animated: true)
+    func didTapLogin () {
+        guard let emailUser = textFieldEmail.text, !emailUser.isEmpty, let passwordUser = textFieldPassword.text, !passwordUser.isEmpty else { return }
+        
+        viewModelLogin.logInUser(email: emailUser, password: passwordUser) { sucsses in
+            DispatchQueue.main.async {
+                if sucsses {
+                    self.view.endEditing(true)
+                    self.textFieldEmail.text = ""
+                    self.textFieldPassword.text = ""
+                    
+                    let tabBarVC = TabBarViewController()
+                    self.navigationController?.pushViewController(tabBarVC, animated: true)
+                }
+            }
+        }
+        
     }
     
     @objc
@@ -201,6 +254,16 @@ class LoginViewController: UIViewController {
     @objc
     func didTapApple () {
         
+    }
+    
+    func didReceiveError(message: String) {
+        alertMessageError(message: message)
+    }
+    
+    func alertMessageError (message: String) {
+        let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
     
 
