@@ -12,18 +12,36 @@ class TabBarViewController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        setupTabBar()
         // Do any additional setup after loading the view.
     }
     
 
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    private func setupTabBar () {
+        
+        let searchVC = SearchViewController()
+        let favoriteVC = FavoriteViewController()
+        let gameVC = GameViewController()
+        
+        searchVC.tabBarItem.title = "Search"
+        searchVC.tabBarItem.image = UIImage(systemName: "magnifyingglass.circle")
+        searchVC.tabBarItem.selectedImage = UIImage(systemName: "magnifyingglass.circle.fill")
+        
+        let searchNV = UINavigationController(rootViewController: searchVC)
+        
+        
+        favoriteVC.tabBarItem.title = "Favorite"
+        favoriteVC.tabBarItem.image = UIImage(systemName: "star")
+        favoriteVC.tabBarItem.selectedImage = UIImage(systemName: "star.fill")
+        
+        let favoriteNV = UINavigationController(rootViewController: favoriteVC)
+        
+        
+        gameVC.tabBarItem.title = "Game"
+        gameVC.tabBarItem.image = UIImage(systemName: "gamecontroller.circle")
+        gameVC.tabBarItem.selectedImage = UIImage(systemName: "gamecontroller.circle.fill")
+        
+        viewControllers = [searchNV, favoriteNV, gameVC]
     }
-    */
 
 }
