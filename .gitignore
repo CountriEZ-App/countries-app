@@ -1,4 +1,6 @@
 Pods/
 .DS_Store
-CountriEZ.xcworkspace/xcuserdata/*.xcuserdatad/UserInterfaceState.xcuserstate
-CountriEZ.xcworkspace/xcuserdata/
+
+# Xcode user-specific data
+*.xcuserstate
+xcuserdata/
