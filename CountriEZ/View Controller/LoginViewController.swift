@@ -6,6 +6,9 @@
 //
 
 import UIKit
+import FirebaseCore
+import GoogleSignIn
+
 
 class LoginViewController: UIViewController, LoginViewModelDelegate {
     
@@ -29,7 +32,7 @@ class LoginViewController: UIViewController, LoginViewModelDelegate {
         textField.font = .systemFont(ofSize: 15)
         textField.layer.cornerRadius = 5
         textField.layer.masksToBounds = true
-        textField.autocapitalizationType = .none
+        textField.autocapitalizationType = .none //Empiece con minusculas
         textField.translatesAutoresizingMaskIntoConstraints = false
         
         return textField
@@ -42,8 +45,13 @@ class LoginViewController: UIViewController, LoginViewModelDelegate {
         textField.font = .systemFont(ofSize: 15)
         textField.layer.cornerRadius = 5
         textField.layer.masksToBounds = true
-        textField.autocapitalizationType = .none
-        textField.isSecureTextEntry = true
+        textField.autocapitalizationType = .none //Empiece con minusculas
+        textField.isSecureTextEntry = true //Esconde la contraseña
+        
+        textField.textContentType = .oneTimeCode // Evita la sugerencia de contraseñas seguras
+        textField.autocorrectionType = .no
+        textField.smartInsertDeleteType = .no
+        
         textField.translatesAutoresizingMaskIntoConstraints = false
         
         return textField
@@ -88,10 +96,18 @@ class LoginViewController: UIViewController, LoginViewModelDelegate {
         config.title = " Gmail"
         config.baseForegroundColor = .black
         
+        if let originalImage = UIImage(named: "google") {
+            let resizedImage = UIGraphicsImageRenderer(size: CGSize(width: 24, height: 24)).image { _ in
+                originalImage.draw(in: CGRect(origin: .zero, size: CGSize(width: 24, height: 24)))
+            }
+            config.image = resizedImage
+        }
+
         button.configuration = config
         button.backgroundColor = .white
         button.layer.cornerRadius = 10
         button.layer.masksToBounds = true
+        button.addTarget(self, action: #selector(didTapGmail), for: .touchUpInside)
         
         return button
     }()
@@ -221,10 +237,17 @@ class LoginViewController: UIViewController, LoginViewModelDelegate {
     func didTapSignUp () {
         guard let emailUser = textFieldEmail.text, !emailUser.isEmpty, let passwordUser = textFieldPassword.text, !passwordUser.isEmpty else { return }
         
-        viewModelLogin.singUpUser(email: emailUser, password: passwordUser)
-        view.endEditing(true)
-        textFieldEmail.text = ""
-        textFieldPassword.text = ""
+        viewModelLogin.signUpUser(email: emailUser, password: passwordUser){sucsses in
+            DispatchQueue.main.async {
+                if sucsses {
+                    self.view.endEditing(true)
+                    self.textFieldEmail.text = ""
+                    self.textFieldPassword.text = ""
+                }
+            }
+            
+        }
+        
     }
     
     @objc
@@ -249,7 +272,22 @@ class LoginViewController: UIViewController, LoginViewModelDelegate {
     @objc
     func didTapGmail () {
         
+        guard let clientID = FirebaseApp.app()?.options.clientID else { return }
+        let config = GIDConfiguration(clientID: clientID)
+        GIDSignIn.sharedInstance.configuration = config
+        
+        GIDSignIn.sharedInstance.signIn(withPresenting: self) { [weak self] result, error in
+            guard let self = self else { return }
+            
+            self.viewModelLogin.logInUserGoogle(result: result, error: error) { success in
+                if success {
+                    let tabBarVC = TabBarViewController()
+                    self.navigationController?.pushViewController(tabBarVC, animated: true)
+                }
+            }
+        }
     }
+    
     
     @objc
     func didTapApple () {
