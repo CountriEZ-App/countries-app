@@ -22,6 +22,8 @@ class LoginViewController: UIViewController, LoginViewModelDelegate {
         label.font = .systemFont(ofSize: 28, weight: .bold)
         label.backgroundColor = .tertiarySystemGroupedBackground
         
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
         return label
     }()
     
@@ -93,7 +95,7 @@ class LoginViewController: UIViewController, LoginViewModelDelegate {
     private lazy var gmailButton: UIButton = {
         let button = UIButton()
         var config = UIButton.Configuration.plain()
-        config.title = " Gmail"
+        config.title = " con Google"
         config.baseForegroundColor = .black
         
         if let originalImage = UIImage(named: "google") {
@@ -112,26 +114,12 @@ class LoginViewController: UIViewController, LoginViewModelDelegate {
         return button
     }()
     
-    private lazy var appleButton: UIButton = {
-        let button = UIButton()
-        var config = UIButton.Configuration.plain()
-        config.title = " Apple"
-        config.image = UIImage(systemName: "apple.logo")
-        config.baseForegroundColor = .white
-        
-        button.configuration = config
-        button.backgroundColor = .black
-        button.layer.cornerRadius = 10
-        button.layer.masksToBounds = true
-        
-        return button
-    }()
     
     private lazy var mainStack: UIStackView = {
         let stack = UIStackView()
         stack.axis = .vertical
         stack.alignment = .fill
-        stack.distribution = .fillProportionally
+        stack.distribution = .fill
         stack.spacing = 60
 
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -142,10 +130,10 @@ class LoginViewController: UIViewController, LoginViewModelDelegate {
     private lazy var textFieldsStack: UIStackView = {
         let stack = UIStackView()
         stack.axis = .vertical
-        stack.alignment = .center
+        stack.alignment = .fill
         stack.distribution = .fillEqually
         stack.spacing = 15
-        
+        stack.translatesAutoresizingMaskIntoConstraints = false
         return stack
     }()
     
@@ -155,6 +143,7 @@ class LoginViewController: UIViewController, LoginViewModelDelegate {
         stack.alignment = .fill
         stack.distribution = .fillEqually
         stack.spacing = 8
+        stack.translatesAutoresizingMaskIntoConstraints = false
     
         return stack
     }()
@@ -163,9 +152,9 @@ class LoginViewController: UIViewController, LoginViewModelDelegate {
         let stack = UIStackView()
         stack.axis = .horizontal
         stack.alignment = .fill
-        stack.distribution = .fill
+        stack.distribution = .fillEqually
         stack.spacing = 20
-    
+        stack.translatesAutoresizingMaskIntoConstraints = false
         return stack
     }()
 
@@ -186,34 +175,38 @@ class LoginViewController: UIViewController, LoginViewModelDelegate {
     }
 
     
-    func setUpView () {
+    func setUpView() {
         view.addSubview(mainStack)
         
         NSLayoutConstraint.activate([
             mainStack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 130),
-            mainStack.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -205),
             mainStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             mainStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10)
         ])
         
-        mainStack.addArrangedSubview(nameApp)
-        mainStack.addArrangedSubview(setUptextFieldsStacks())
-        mainStack.addArrangedSubview(setUpButtonsStack())
+        let bottomConstraint = mainStack.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -260)
+        bottomConstraint.priority = .defaultHigh
+        bottomConstraint.isActive = true
         
-    }
-    
-    func setUptextFieldsStacks () -> UIStackView {
-        textFieldsStack.addArrangedSubview(textFieldEmail)
+        mainStack.addArrangedSubview(nameApp)
+        
         NSLayoutConstraint.activate([
-            textFieldEmail.leadingAnchor.constraint(equalTo: textFieldsStack.leadingAnchor, constant: 12),
-            textFieldEmail.trailingAnchor.constraint(equalTo: textFieldsStack.trailingAnchor, constant: -12)
+            nameApp.heightAnchor.constraint(equalToConstant: 40)
         ])
         
         
+        mainStack.addArrangedSubview(setUptextFieldsStacks())
+        mainStack.addArrangedSubview(setUpButtonsStack())
+    }
+    
+    
+    func setUptextFieldsStacks() -> UIStackView {
+        textFieldsStack.addArrangedSubview(textFieldEmail)
         textFieldsStack.addArrangedSubview(textFieldPassword)
+        
         NSLayoutConstraint.activate([
-            textFieldPassword.leadingAnchor.constraint(equalTo: textFieldsStack.leadingAnchor, constant: 12),
-            textFieldsStack.trailingAnchor.constraint(equalTo: textFieldsStack.trailingAnchor, constant: -12)
+            textFieldEmail.heightAnchor.constraint(equalToConstant: 45),
+            textFieldPassword.heightAnchor.constraint(equalToConstant: 45)
         ])
         
         return textFieldsStack
@@ -228,13 +221,13 @@ class LoginViewController: UIViewController, LoginViewModelDelegate {
         buttonsLogSignStack.addArrangedSubview(logInButton)
         buttonsStack.addArrangedSubview(buttonsLogSignStack)
         buttonsStack.addArrangedSubview(gmailButton)
-        buttonsStack.addArrangedSubview(appleButton)
         
         return buttonsStack
     }
     
+    
     @objc
-    func didTapSignUp () {
+    private func didTapSignUp () {
         guard let emailUser = textFieldEmail.text, !emailUser.isEmpty, let passwordUser = textFieldPassword.text, !passwordUser.isEmpty else { return }
         
         viewModelLogin.signUpUser(email: emailUser, password: passwordUser){sucsses in
@@ -251,7 +244,7 @@ class LoginViewController: UIViewController, LoginViewModelDelegate {
     }
     
     @objc
-    func didTapLogin () {
+    private func didTapLogin () {
         guard let emailUser = textFieldEmail.text, !emailUser.isEmpty, let passwordUser = textFieldPassword.text, !passwordUser.isEmpty else { return }
         
         viewModelLogin.logInUser(email: emailUser, password: passwordUser) { sucsses in
@@ -261,7 +254,7 @@ class LoginViewController: UIViewController, LoginViewModelDelegate {
                     self.textFieldEmail.text = ""
                     self.textFieldPassword.text = ""
                     
-                    let tabBarVC = TabBarViewController()
+                    let tabBarVC = TabBarViewController(provedor: .normal)
                     self.navigationController?.pushViewController(tabBarVC, animated: true)
                 }
             }
@@ -270,7 +263,7 @@ class LoginViewController: UIViewController, LoginViewModelDelegate {
     }
     
     @objc
-    func didTapGmail () {
+    private func didTapGmail () {
         
         guard let clientID = FirebaseApp.app()?.options.clientID else { return }
         let config = GIDConfiguration(clientID: clientID)
@@ -281,7 +274,7 @@ class LoginViewController: UIViewController, LoginViewModelDelegate {
             
             self.viewModelLogin.logInUserGoogle(result: result, error: error) { success in
                 if success {
-                    let tabBarVC = TabBarViewController()
+                    let tabBarVC = TabBarViewController(provedor: .google)
                     self.navigationController?.pushViewController(tabBarVC, animated: true)
                 }
             }
@@ -289,16 +282,11 @@ class LoginViewController: UIViewController, LoginViewModelDelegate {
     }
     
     
-    @objc
-    func didTapApple () {
-        
-    }
-    
     func didReceiveError(message: String) {
         alertMessageError(message: message)
     }
     
-    func alertMessageError (message: String) {
+    private func alertMessageError (message: String) {
         let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
