@@ -51,6 +51,18 @@ class TabBarViewController: UITabBarController {
         navigationItem.rightBarButtonItem = rightButton
     }
     
+    private func setupRightBarButton() {
+        let rightButton: UIBarButtonItem = {
+            let button = UIBarButtonItem()
+            button.title = "Log Out"
+            button.style = .plain
+            button.target = self
+            button.action = #selector(didTapLogOut)
+            return button
+        }()
+        navigationItem.rightBarButtonItem = rightButton
+    }
+    
 
     private func setupTabBar () {
         
@@ -82,12 +94,12 @@ class TabBarViewController: UITabBarController {
     
     @objc
     private func didTapLogOut() {
-        
         let defaults = UserDefaults.standard
         defaults.removeObject(forKey: "proveedor")
         defaults.removeObject(forKey: "email")
         defaults.synchronize()
         
+
         tabBarViewModel.logOut { [weak self] result in
             if result {
                 print("Sesión cerrada correctamente")

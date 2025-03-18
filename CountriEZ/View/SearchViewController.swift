@@ -9,8 +9,10 @@ import UIKit
 import Lottie
 
 class SearchViewController: UIViewController {
+
     
     private let searchViewModel = SearchViewModel()
+
     
     var animationLottie: LottieAnimationView!
     
@@ -23,6 +25,7 @@ class SearchViewController: UIViewController {
 
     //Cuidar memoria por imagenes
     var imageCache = NSCache<NSString, UIImage>()
+
     
     let label: UILabel = {
         let label = UILabel()
@@ -47,13 +50,17 @@ class SearchViewController: UIViewController {
         let button = UIButton()
         var configuration = UIButton.Configuration.bordered()
         configuration.title = "Name"
+
         configuration.background.backgroundColor = .systemMint
         configuration.baseForegroundColor = .black
+
         button.layer.cornerRadius = 10
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(searchName), for: .touchUpInside)
         button.configuration = configuration
+
         button.tag = 0
+
         return button
     }()
     
@@ -65,7 +72,9 @@ class SearchViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(searchLanguage), for: .touchUpInside)
         button.configuration = configuration
+
         button.tag = 1
+
         return button
     }()
     
@@ -77,7 +86,9 @@ class SearchViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(searchCapital), for: .touchUpInside)
         button.configuration = configuration
+
         button.tag = 2
+
         return button
     }()
     
@@ -89,7 +100,9 @@ class SearchViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(searchRegion), for: .touchUpInside)
         button.configuration = configuration
+
         button.tag = 3
+
         return button
     }()
     
@@ -118,6 +131,7 @@ class SearchViewController: UIViewController {
         super.viewDidLoad()
         constraints()
         view.backgroundColor = .systemBackground
+
         //Search Bar
         searchBar.delegate = self
         
@@ -139,6 +153,7 @@ class SearchViewController: UIViewController {
     
     //    MARK: - Constraints
     func setupLabels(){
+
         [label, labelDetail].forEach(view.addSubview)
         
         NSLayoutConstraint.activate([
@@ -152,6 +167,7 @@ class SearchViewController: UIViewController {
         ])
     }
     
+
     func setupButtons(){
         
         let buttonStackH = UIStackView(arrangedSubviews: [buttonSearchName, buttonSearchLanguage])
@@ -172,23 +188,29 @@ class SearchViewController: UIViewController {
         view.addSubview(buttonStackView)
         
         NSLayoutConstraint.activate([
+
             buttonStackView.topAnchor.constraint(equalTo: labelDetail.bottomAnchor, constant: 20),
             buttonStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             buttonStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+
         ])
         
     }
     
+
     func setupSearchBar(){
+
         view.addSubview(searchBar)
         NSLayoutConstraint.activate([
             searchBar.topAnchor.constraint(equalTo: buttonSearchRegion.bottomAnchor, constant: 30),
             searchBar.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
             searchBar.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
         ])
+
     }
     
     func setupAnimationLottie(){
+
         animationLottie = LottieAnimationView(name: "AnimationWorld")
         animationLottie.contentMode = .scaleAspectFit
         animationLottie.loopMode = .loop
@@ -205,10 +227,10 @@ class SearchViewController: UIViewController {
             animationLottie.heightAnchor.constraint(equalToConstant: 200)
         ])
         
-//        animationLottie.isHidden = false
     }
     
     func setupTableView(){
+
         view.addSubview(tableView)
         
         NSLayoutConstraint.activate([
@@ -222,6 +244,7 @@ class SearchViewController: UIViewController {
     }
     
     func constraints(){
+
         setupLabels()
         setupButtons()
         setupSearchBar()
@@ -281,6 +304,7 @@ extension SearchViewController: UISearchBarDelegate {
             
         }else{
             isSearch = true
+
             print("\nUsuario Buscando")
             tableView.isHidden = false
             animationLottie.isHidden = true
@@ -289,6 +313,7 @@ extension SearchViewController: UISearchBarDelegate {
             
             
  
+
             tableView.reloadData()
         }
     }
@@ -303,6 +328,7 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as? CellSearchViewController else {
             return UITableViewCell()
         }
@@ -328,15 +354,18 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
                         // Verifica que la celda sigue siendo la misma antes de actualizar la imagen
                         if let updatedCell = tableView.cellForRow(at: indexPath) as? CellSearchViewController {
                             updatedCell.imageCountry.image = image
+
                         }
                     }
                 }.resume()
             }
+
         }
         
         return cell
     }
     
+
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         70
     }
@@ -349,5 +378,6 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
         navigationController?.pushViewController(detailCountryVC, animated: true)
     }
     
+
 }
 
