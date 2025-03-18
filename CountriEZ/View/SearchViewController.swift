@@ -140,7 +140,6 @@ class SearchViewController: UIViewController {
         tableView.delegate = self
         tableView.register(CellSearchViewController.self, forCellReuseIdentifier: "cell")
         
-        buttonSearchName.isSelected = true
         
         // Peticion URL
         searchViewModel.fetchCountries { data, error in
@@ -170,24 +169,32 @@ class SearchViewController: UIViewController {
     
 
     func setupButtons(){
-        [buttonSearchName, buttonSearchLanguage, buttonSearchCapital, buttonSearchRegion].forEach(view.addSubview)
+        
+        let buttonStackH = UIStackView(arrangedSubviews: [buttonSearchName, buttonSearchLanguage])
+        buttonStackH.axis = .horizontal
+        buttonStackH.spacing = 10
+        buttonStackH.distribution = .fillProportionally
+        
+        let buttonStackH2 = UIStackView(arrangedSubviews: [buttonSearchCapital, buttonSearchRegion])
+        buttonStackH2.axis = .horizontal
+        buttonStackH2.spacing = 10
+        buttonStackH2.distribution = .fillProportionally
+        
+        let buttonStackView = UIStackView(arrangedSubviews: [buttonStackH, buttonStackH2])
+        buttonStackView.axis = .vertical
+        buttonStackView.spacing = 10
+        buttonStackView.distribution = .fillEqually
+        buttonStackView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(buttonStackView)
         
         NSLayoutConstraint.activate([
 
-            buttonSearchName.topAnchor.constraint(equalTo: labelDetail.bottomAnchor, constant: 20),
-            buttonSearchName.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 110),
+            buttonStackView.topAnchor.constraint(equalTo: labelDetail.bottomAnchor, constant: 20),
+            buttonStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            buttonStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
 
-            buttonSearchLanguage.topAnchor.constraint(equalTo: labelDetail.bottomAnchor, constant: 20),
-            buttonSearchLanguage.leadingAnchor.constraint(equalTo: buttonSearchName.trailingAnchor, constant: 10),
-            
-            buttonSearchCapital.topAnchor.constraint(equalTo: buttonSearchName.bottomAnchor, constant: 10),
-            buttonSearchCapital.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 120),
-            
-            buttonSearchRegion.topAnchor.constraint(equalTo: buttonSearchName.bottomAnchor, constant: 10),
-
-            buttonSearchRegion.leadingAnchor.constraint(equalTo: buttonSearchCapital.trailingAnchor, constant: 10),
-            
         ])
+        
     }
     
 
@@ -255,42 +262,32 @@ class SearchViewController: UIViewController {
     }
     
     
+    
     // MARK: - Botones de búsqueda
 
     @objc func searchName() {
-        resetButtonColors()
-        var config = buttonSearchName.configuration
-        config?.background.backgroundColor = .systemMint
-        config?.baseForegroundColor = .black
-        buttonSearchName.configuration = config
-        tagFilter = buttonSearchName.tag
+        configButtonSelected(button: buttonSearchName)
     }
     
     @objc func searchLanguage() {
-        resetButtonColors()
-        var config = buttonSearchLanguage.configuration
-        config?.background.backgroundColor = .systemMint
-        config?.baseForegroundColor = .black
-        buttonSearchLanguage.configuration = config
-        tagFilter = buttonSearchLanguage.tag
+        configButtonSelected(button: buttonSearchLanguage)
     }
     
     @objc func searchCapital() {
-        resetButtonColors()
-        var config = buttonSearchCapital.configuration
-        config?.background.backgroundColor = .systemMint
-        config?.baseForegroundColor = .black
-        buttonSearchCapital.configuration = config
-        tagFilter = buttonSearchCapital.tag
+        configButtonSelected(button: buttonSearchCapital)
     }
     
     @objc func searchRegion() {
+        configButtonSelected(button: buttonSearchRegion)
+    }
+    
+    func configButtonSelected(button: UIButton) {
         resetButtonColors()
-        var config = buttonSearchRegion.configuration
+        var config = button.configuration
         config?.background.backgroundColor = .systemMint
         config?.baseForegroundColor = .black
-        buttonSearchRegion.configuration = config
-        tagFilter = buttonSearchRegion.tag
+        button.configuration = config
+        tagFilter = button.tag
     }
     
 }
@@ -313,6 +310,8 @@ extension SearchViewController: UISearchBarDelegate {
             animationLottie.isHidden = true
             
             searchDataCountry = searchViewModel.filterData(data: dataCountries, tag: tagFilter, text: searchText)
+            
+            
  
 
             tableView.reloadData()
@@ -364,6 +363,19 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
         }
         
         return cell
+    }
+    
+
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        70
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        let country = searchDataCountry[indexPath.row]
+        print(country.name.nameCountry)
+        let detailCountryVC = DetailCountryViewController(country: country)
+        navigationController?.pushViewController(detailCountryVC, animated: true)
     }
     
 

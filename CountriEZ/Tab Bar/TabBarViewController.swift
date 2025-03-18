@@ -43,7 +43,7 @@ class TabBarViewController: UITabBarController {
         let rightButton: UIBarButtonItem = {
             let button = UIBarButtonItem()
             button.title = "Log Out"
-            button.style = .plain
+            button.style = .done
             button.target = self
             button.action = #selector(didTapLogOut)
             return button

@@ -50,9 +50,9 @@ class CellSearchViewController: UITableViewCell {
             stackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             stackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
-
-            imageCountry.widthAnchor.constraint(equalToConstant: 50),
-            imageCountry.heightAnchor.constraint(equalToConstant: 30)
+            
+            imageCountry.widthAnchor.constraint(equalToConstant: 50)
         ])
+//        imageCountry.heightAnchor.constraint(equalToConstant: 30).priority = .defaultLow
     }
 }
