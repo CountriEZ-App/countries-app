@@ -12,10 +12,12 @@ class TabBarViewController: UITabBarController {
     private let tabBarViewModel: TabBarViewModel
     
     private let provedorUser: ProviderUser
+    private let emailUser: String
     
-    init(provedor: ProviderUser){
+    init(provedor: ProviderUser, email: String){
         self.tabBarViewModel = TabBarViewModel(provedor: provedor)
         self.provedorUser = provedor
+        self.emailUser = email
         super.init(nibName: nil, bundle: nil)
         
     }
@@ -30,7 +32,23 @@ class TabBarViewController: UITabBarController {
         navigationItem.setHidesBackButton(true, animated: false)
         setupRightBarButton()
         setupTabBar()
-        // Do any additional setup after loading the view.
+        
+        let defaults = UserDefaults.standard
+        defaults.set(provedorUser == .google ? "google" : "normal", forKey: "proveedor")
+        defaults.set(emailUser, forKey: "email")
+        defaults.synchronize()
+    }
+    
+    private func setupRightBarButton() {
+        let rightButton: UIBarButtonItem = {
+            let button = UIBarButtonItem()
+            button.title = "Log Out"
+            button.style = .plain
+            button.target = self
+            button.action = #selector(didTapLogOut)
+            return button
+        }()
+        navigationItem.rightBarButtonItem = rightButton
     }
     
     private func setupRightBarButton() {
@@ -76,7 +94,12 @@ class TabBarViewController: UITabBarController {
     
     @objc
     private func didTapLogOut() {
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: "proveedor")
+        defaults.removeObject(forKey: "email")
+        defaults.synchronize()
         
+
         tabBarViewModel.logOut { [weak self] result in
             if result {
                 print("Sesión cerrada correctamente")

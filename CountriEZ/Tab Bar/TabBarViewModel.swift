@@ -24,7 +24,7 @@ class TabBarViewModel {
             do {
                 try Auth.auth().signOut()
                 completion(true)
-            } catch let error {
+            } catch  {
                 completion(false)
             }
         case .google:
@@ -32,7 +32,7 @@ class TabBarViewModel {
             do {
                 try Auth.auth().signOut()
                 completion(true)
-            } catch let error {
+            } catch  {
                 completion(false)
             }
         }
