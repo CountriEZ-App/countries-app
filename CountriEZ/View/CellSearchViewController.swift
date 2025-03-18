@@ -10,6 +10,7 @@ import UIKit
 
 class CellSearchViewController: UITableViewCell {
     
+    
     lazy var imageCountry: UIImageView = {
         let imageCountry = UIImageView()
         imageCountry.contentMode = .scaleAspectFit

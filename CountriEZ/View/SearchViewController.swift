@@ -9,21 +9,20 @@ import UIKit
 import Lottie
 
 class SearchViewController: UIViewController {
-    // ALL https://restcountries.com/v3.1/all
-    // NAME https://restcountries.com/v3.1/name/deutschland
-    // language  https://restcountries.com/v3.1/lang/spanish
-    // capital https://restcountries.com/v3.1/capital/tallin
-    // region https://restcountries.com/v3.1/region/europe
+    
+    private let searchViewModel = SearchViewModel()
     
     var animationLottie: LottieAnimationView!
     
     var searchDataCountry: [DataCountries] = []
     var dataCountries: [DataCountries] = []
-    var arrayDataCountry: [DataCountries] = []
     var isSearch: Bool = false
     var selectedURL: String = ""
     var typeSearch: String = ""
-    
+    var tagFilter: Int = 0
+
+    //Cuidar memoria por imagenes
+    var imageCache = NSCache<NSString, UIImage>()
     
     let label: UILabel = {
         let label = UILabel()
@@ -43,25 +42,18 @@ class SearchViewController: UIViewController {
         return label
     }()
     
-    private lazy var buttonSearchAll: UIButton = {
-        let button = UIButton()
-        var configuration = UIButton.Configuration.bordered()
-        configuration.title = "All Countries"
-        button.layer.cornerRadius = 10
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(searchAllCountry), for: .touchUpInside)
-        button.configuration = configuration
-        return button
-    }()
     
     private lazy var buttonSearchName: UIButton = {
         let button = UIButton()
         var configuration = UIButton.Configuration.bordered()
         configuration.title = "Name"
+        configuration.background.backgroundColor = .systemMint
+        configuration.baseForegroundColor = .black
         button.layer.cornerRadius = 10
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(searchName), for: .touchUpInside)
         button.configuration = configuration
+        button.tag = 0
         return button
     }()
     
@@ -73,6 +65,7 @@ class SearchViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(searchLanguage), for: .touchUpInside)
         button.configuration = configuration
+        button.tag = 1
         return button
     }()
     
@@ -84,6 +77,7 @@ class SearchViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(searchCapital), for: .touchUpInside)
         button.configuration = configuration
+        button.tag = 2
         return button
     }()
     
@@ -95,6 +89,7 @@ class SearchViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(searchRegion), for: .touchUpInside)
         button.configuration = configuration
+        button.tag = 3
         return button
     }()
     
@@ -110,10 +105,19 @@ class SearchViewController: UIViewController {
         return tableView
     }()
     
+    
+    init(){
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         constraints()
-        
+        view.backgroundColor = .systemBackground
         //Search Bar
         searchBar.delegate = self
         
@@ -122,14 +126,20 @@ class SearchViewController: UIViewController {
         tableView.delegate = self
         tableView.register(CellSearchViewController.self, forCellReuseIdentifier: "cell")
         
-        // Peticion URL
-        petticionURL()
+        buttonSearchName.isSelected = true
         
-        view.backgroundColor = .systemBackground
+        // Peticion URL
+        searchViewModel.fetchCountries { data, error in
+            DispatchQueue.main.async {
+                guard let data = data, error == nil else {return }
+                self.dataCountries = data
+                self.tableView.reloadData()
+            }
+        }
     }
     
-//    MARK: - Constraints
-    func constraintLabel(){
+    //    MARK: - Constraints
+    func setupLabels(){
         [label, labelDetail].forEach(view.addSubview)
         
         NSLayoutConstraint.activate([
@@ -143,44 +153,39 @@ class SearchViewController: UIViewController {
         ])
     }
     
-    func constraintButton(){
-        [buttonSearchAll, buttonSearchName, buttonSearchLanguage, buttonSearchCapital, buttonSearchRegion].forEach(view.addSubview)
+    func setupButtons(){
+        [buttonSearchName, buttonSearchLanguage, buttonSearchCapital, buttonSearchRegion].forEach(view.addSubview)
         
         NSLayoutConstraint.activate([
-            buttonSearchAll.topAnchor.constraint(equalTo: labelDetail.bottomAnchor, constant: 20),
-            buttonSearchAll.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 45),
-            
-            
+
             buttonSearchName.topAnchor.constraint(equalTo: labelDetail.bottomAnchor, constant: 20),
-            buttonSearchName.leadingAnchor.constraint(equalTo: buttonSearchAll.trailingAnchor, constant: 10),
+            buttonSearchName.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 110),
             
             
             buttonSearchLanguage.topAnchor.constraint(equalTo: labelDetail.bottomAnchor, constant: 20),
             buttonSearchLanguage.leadingAnchor.constraint(equalTo: buttonSearchName.trailingAnchor, constant: 10),
             
             
-            buttonSearchCapital.topAnchor.constraint(equalTo: buttonSearchAll.bottomAnchor, constant: 10),
+            buttonSearchCapital.topAnchor.constraint(equalTo: buttonSearchName.bottomAnchor, constant: 10),
             buttonSearchCapital.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 120),
             
             
-            buttonSearchRegion.topAnchor.constraint(equalTo: buttonSearchAll.bottomAnchor, constant: 10),
+            buttonSearchRegion.topAnchor.constraint(equalTo: buttonSearchName.bottomAnchor, constant: 10),
             buttonSearchRegion.leadingAnchor.constraint(equalTo: buttonSearchCapital.trailingAnchor, constant: 10),
             
         ])
     }
     
-    func constraintSearchBar(){
+    func setupSearchBar(){
         view.addSubview(searchBar)
         NSLayoutConstraint.activate([
             searchBar.topAnchor.constraint(equalTo: buttonSearchRegion.bottomAnchor, constant: 30),
             searchBar.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
             searchBar.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
         ])
-        
-        searchBar.isHidden = true
     }
     
-    func constraintAnimationLottie(){
+    func setupAnimationLottie(){
         animationLottie = LottieAnimationView(name: "AnimationWorld")
         animationLottie.contentMode = .scaleAspectFit
         animationLottie.loopMode = .loop
@@ -197,10 +202,10 @@ class SearchViewController: UIViewController {
             animationLottie.heightAnchor.constraint(equalToConstant: 200)
         ])
         
-        animationLottie.isHidden = false
+//        animationLottie.isHidden = false
     }
     
-    func constraintTableView(){
+    func setupTableView(){
         view.addSubview(tableView)
         
         NSLayoutConstraint.activate([
@@ -214,118 +219,62 @@ class SearchViewController: UIViewController {
     }
     
     func constraints(){
-        constraintLabel()
-        constraintButton()
-        constraintSearchBar()
-        constraintAnimationLottie()
-        constraintTableView()
+        setupLabels()
+        setupButtons()
+        setupSearchBar()
+        setupAnimationLottie()
+        setupTableView()
     }
     
     func resetButtonColors() {
-            [buttonSearchAll, buttonSearchName, buttonSearchLanguage, buttonSearchCapital, buttonSearchRegion].forEach {
-                $0.backgroundColor = .systemBackground
-            }
+        [buttonSearchName, buttonSearchLanguage, buttonSearchCapital, buttonSearchRegion].forEach {
+            var config = $0.configuration
+            config?.background.backgroundColor = .secondarySystemFill
+            config?.baseForegroundColor = .link
+            $0.configuration = config
         }
-//        MARK: - Alerta
-    func alertTextField(type: String, completion: @escaping (String) -> Void) {
-        let alert = UIAlertController(title: "Introduce el/la \(type) del país", message: nil, preferredStyle: .alert)
-        
-        alert.addTextField { textField in
-            textField.placeholder = "Ingresa aquí el/la \(type) del país"
-        }
-        
-        let aceptarAction = UIAlertAction(title: "Aceptar", style: .default) { _ in
-            if let text = alert.textFields?.first?.text, !text.isEmpty {
-                completion(text)
-            }
-        }
-        
-        alert.addAction(aceptarAction)
-        alert.addAction(UIAlertAction(title: "Cancelar", style: .cancel))
-        
-        present(alert, animated: true)
     }
-        
+    
+    
     // MARK: - Botones de búsqueda
-        @objc func searchAllCountry() {
-            resetButtonColors()
-            buttonSearchAll.backgroundColor = .systemMint
-            selectedURL = "https://restcountries.com/v3.1/all"
-            petticionURL()
-            searchBar.isHidden = false
 
-        }
-
-        @objc func searchName() {
-            resetButtonColors()
-            buttonSearchName.backgroundColor = .systemMint
-            
-            alertTextField(type: "nombre") { userInput in
-                self.selectedURL = "https://restcountries.com/v3.1/name/\(userInput)"
-                self.petticionURL()
-            }
-        }
-
+    @objc func searchName() {
+        resetButtonColors()
+        var config = buttonSearchName.configuration
+        config?.background.backgroundColor = .systemMint
+        config?.baseForegroundColor = .black
+        buttonSearchName.configuration = config
+        tagFilter = buttonSearchName.tag
+    }
+    
     @objc func searchLanguage() {
         resetButtonColors()
-        buttonSearchLanguage.backgroundColor = .systemMint
-        
-        alertTextField(type: "idioma") { userInput in
-            self.selectedURL = "https://restcountries.com/v3.1/lang/\(userInput.lowercased())"
-            self.petticionURL()
-        }
-        searchBar.isHidden = true
-        animationLottie.isHidden = true
-        tableView.isHidden = false
+        var config = buttonSearchLanguage.configuration
+        config?.background.backgroundColor = .systemMint
+        config?.baseForegroundColor = .black
+        buttonSearchLanguage.configuration = config
+        tagFilter = buttonSearchLanguage.tag
     }
-
+    
     @objc func searchCapital() {
         resetButtonColors()
-        buttonSearchCapital.backgroundColor = .systemMint
-        
-        alertTextField(type: "capital") { userInput in
-            self.selectedURL = "https://restcountries.com/v3.1/capital/\(userInput)"
-            self.petticionURL()
-        }
-        
-        searchBar.isHidden = true
-        animationLottie.isHidden = true
-        tableView.isHidden = false
+        var config = buttonSearchCapital.configuration
+        config?.background.backgroundColor = .systemMint
+        config?.baseForegroundColor = .black
+        buttonSearchCapital.configuration = config
+        tagFilter = buttonSearchCapital.tag
     }
-
-        @objc func searchRegion() {
-            resetButtonColors()
-            buttonSearchRegion.backgroundColor = .systemMint
-            
-            alertTextField(type: "región") { userInput in
-                self.selectedURL = "https://restcountries.com/v3.1/region/\(userInput.lowercased())"
-                self.petticionURL()
-            }
-            
-            searchBar.isHidden = true
-            animationLottie.isHidden = true
-            tableView.isHidden = false
-        }
-
-    // MARK: - Petición a la API
-        func petticionURL() {
-            guard let url = URL(string: selectedURL) else { return }
-
-            URLSession.shared.dataTask(with: url) { data, _, error in
-                guard let data = data, error == nil else { return }
-                
-                do {
-                    let dataCountry = try JSONDecoder().decode([DataCountries].self, from: data)
-                    DispatchQueue.main.async {
-                        self.dataCountries = dataCountry
-                        self.tableView.reloadData()
-                    }
-                } catch {
-                    print("Error al decodificar:", error)
-                }
-            }.resume()
-        }
+    
+    @objc func searchRegion() {
+        resetButtonColors()
+        var config = buttonSearchRegion.configuration
+        config?.background.backgroundColor = .systemMint
+        config?.baseForegroundColor = .black
+        buttonSearchRegion.configuration = config
+        tagFilter = buttonSearchRegion.tag
     }
+    
+}
 
 
 // MARK: - Search Bar
@@ -339,13 +288,12 @@ extension SearchViewController: UISearchBarDelegate {
             
         }else{
             isSearch = true
-            print("Usuario Buscando")
+            print("\nUsuario Buscando")
             tableView.isHidden = false
             animationLottie.isHidden = true
             
-            searchDataCountry = dataCountries.filter { country in
-                return country.name.nameCountry.lowercased().hasPrefix(searchText.lowercased())
-            }
+            searchDataCountry = searchViewModel.filterData(data: dataCountries, tag: tagFilter, text: searchText)
+ 
             tableView.reloadData()
         }
     }
@@ -360,37 +308,39 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! CellSearchViewController
-        
-        if isSearch == true{
-            cell.labelCountry.text = searchDataCountry[indexPath.row].name.nameCountry
-            
-            if let imageUrl = URL(string: searchDataCountry[indexPath.row].flags.nameImagePNG) {
-                URLSession.shared.dataTask(with: imageUrl) { data, _ , error in
-                    if let data = data, let image = UIImage(data: data) {
-                        DispatchQueue.main.async {
-                            cell.imageCountry.image = image
-                        }
-                    }
-                }.resume()
-            }
-            
-        }else{
-            cell.labelCountry.text = dataCountries[indexPath.row].name.nameCountry
-            
-            if let imageUrl = URL(string: dataCountries[indexPath.row].flags.nameImagePNG) {
-                URLSession.shared.dataTask(with: imageUrl) { data, _ , error in
-                    if let data = data, let image = UIImage(data: data) {
-                        DispatchQueue.main.async {
-                            cell.imageCountry.image = image
-                        }
-                    }
-                }.resume()
-            }
-            
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as? CellSearchViewController else {
+            return UITableViewCell()
         }
-        return cell
         
+        let country = isSearch ? searchDataCountry[indexPath.row] : dataCountries[indexPath.row]
+        cell.labelCountry.text = country.name.nameCountry
+        
+        let imageURLString = country.flags.nameImagePNG
+        
+        // Si la imagen ya está en caché, la usamos
+        if let cachedImage = imageCache.object(forKey: imageURLString as NSString) {
+            cell.imageCountry.image = cachedImage
+        } else {
+            cell.imageCountry.image = nil // Evita imágenes incorrectas en celdas recicladas
+            
+            if let imageUrl = URL(string: imageURLString) {
+                URLSession.shared.dataTask(with: imageUrl) { [weak self] data, _, _ in
+                    guard let self = self, let data = data, let image = UIImage(data: data) else { return }
+                    
+                    self.imageCache.setObject(image, forKey: imageURLString as NSString)
+                    
+                    DispatchQueue.main.async {
+                        // Verifica que la celda sigue siendo la misma antes de actualizar la imagen
+                        if let updatedCell = tableView.cellForRow(at: indexPath) as? CellSearchViewController {
+                            updatedCell.imageCountry.image = image
+                        }
+                    }
+                }.resume()
+            }
+        }
+        
+        return cell
     }
+    
 }
 
