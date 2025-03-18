@@ -9,8 +9,10 @@ import UIKit
 import Lottie
 
 class SearchViewController: UIViewController {
+
     
     private let searchViewModel = SearchViewModel()
+
     
     var animationLottie: LottieAnimationView!
     
@@ -23,6 +25,7 @@ class SearchViewController: UIViewController {
 
     //Cuidar memoria por imagenes
     var imageCache = NSCache<NSString, UIImage>()
+
     
     let label: UILabel = {
         let label = UILabel()
@@ -47,13 +50,17 @@ class SearchViewController: UIViewController {
         let button = UIButton()
         var configuration = UIButton.Configuration.bordered()
         configuration.title = "Name"
+
         configuration.background.backgroundColor = .systemMint
         configuration.baseForegroundColor = .black
+
         button.layer.cornerRadius = 10
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(searchName), for: .touchUpInside)
         button.configuration = configuration
+
         button.tag = 0
+
         return button
     }()
     
@@ -65,7 +72,9 @@ class SearchViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(searchLanguage), for: .touchUpInside)
         button.configuration = configuration
+
         button.tag = 1
+
         return button
     }()
     
@@ -77,7 +86,9 @@ class SearchViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(searchCapital), for: .touchUpInside)
         button.configuration = configuration
+
         button.tag = 2
+
         return button
     }()
     
@@ -89,7 +100,9 @@ class SearchViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(searchRegion), for: .touchUpInside)
         button.configuration = configuration
+
         button.tag = 3
+
         return button
     }()
     
@@ -118,6 +131,7 @@ class SearchViewController: UIViewController {
         super.viewDidLoad()
         constraints()
         view.backgroundColor = .systemBackground
+
         //Search Bar
         searchBar.delegate = self
         
@@ -140,6 +154,7 @@ class SearchViewController: UIViewController {
     
     //    MARK: - Constraints
     func setupLabels(){
+
         [label, labelDetail].forEach(view.addSubview)
         
         NSLayoutConstraint.activate([
@@ -153,6 +168,7 @@ class SearchViewController: UIViewController {
         ])
     }
     
+
     func setupButtons(){
         [buttonSearchName, buttonSearchLanguage, buttonSearchCapital, buttonSearchRegion].forEach(view.addSubview)
         
@@ -160,32 +176,34 @@ class SearchViewController: UIViewController {
 
             buttonSearchName.topAnchor.constraint(equalTo: labelDetail.bottomAnchor, constant: 20),
             buttonSearchName.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 110),
-            
-            
+
             buttonSearchLanguage.topAnchor.constraint(equalTo: labelDetail.bottomAnchor, constant: 20),
             buttonSearchLanguage.leadingAnchor.constraint(equalTo: buttonSearchName.trailingAnchor, constant: 10),
-            
             
             buttonSearchCapital.topAnchor.constraint(equalTo: buttonSearchName.bottomAnchor, constant: 10),
             buttonSearchCapital.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 120),
             
-            
             buttonSearchRegion.topAnchor.constraint(equalTo: buttonSearchName.bottomAnchor, constant: 10),
+
             buttonSearchRegion.leadingAnchor.constraint(equalTo: buttonSearchCapital.trailingAnchor, constant: 10),
             
         ])
     }
     
+
     func setupSearchBar(){
+
         view.addSubview(searchBar)
         NSLayoutConstraint.activate([
             searchBar.topAnchor.constraint(equalTo: buttonSearchRegion.bottomAnchor, constant: 30),
             searchBar.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
             searchBar.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
         ])
+
     }
     
     func setupAnimationLottie(){
+
         animationLottie = LottieAnimationView(name: "AnimationWorld")
         animationLottie.contentMode = .scaleAspectFit
         animationLottie.loopMode = .loop
@@ -202,10 +220,10 @@ class SearchViewController: UIViewController {
             animationLottie.heightAnchor.constraint(equalToConstant: 200)
         ])
         
-//        animationLottie.isHidden = false
     }
     
     func setupTableView(){
+
         view.addSubview(tableView)
         
         NSLayoutConstraint.activate([
@@ -219,6 +237,7 @@ class SearchViewController: UIViewController {
     }
     
     func constraints(){
+
         setupLabels()
         setupButtons()
         setupSearchBar()
@@ -288,12 +307,14 @@ extension SearchViewController: UISearchBarDelegate {
             
         }else{
             isSearch = true
+
             print("\nUsuario Buscando")
             tableView.isHidden = false
             animationLottie.isHidden = true
             
             searchDataCountry = searchViewModel.filterData(data: dataCountries, tag: tagFilter, text: searchText)
  
+
             tableView.reloadData()
         }
     }
@@ -308,6 +329,7 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as? CellSearchViewController else {
             return UITableViewCell()
         }
@@ -333,14 +355,17 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
                         // Verifica que la celda sigue siendo la misma antes de actualizar la imagen
                         if let updatedCell = tableView.cellForRow(at: indexPath) as? CellSearchViewController {
                             updatedCell.imageCountry.image = image
+
                         }
                     }
                 }.resume()
             }
+
         }
         
         return cell
     }
     
+
 }
 

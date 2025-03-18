@@ -121,7 +121,6 @@ class LoginViewController: UIViewController, LoginViewModelDelegate {
         stack.alignment = .fill
         stack.distribution = .fill
         stack.spacing = 40
-
         stack.translatesAutoresizingMaskIntoConstraints = false
         
         return stack
@@ -172,7 +171,7 @@ class LoginViewController: UIViewController, LoginViewModelDelegate {
         view.backgroundColor = .tertiarySystemGroupedBackground
         viewModelLogin.delegate = self
         setUpView()
-        
+
         let defaults = UserDefaults.standard
         if let email = defaults.value(forKey: "email") as? String,
            let proveedorString = defaults.value(forKey: "proveedor") as? String {
@@ -181,6 +180,7 @@ class LoginViewController: UIViewController, LoginViewModelDelegate {
             navigationController?.pushViewController(tabBarVC, animated: true)
         }
         
+
     }
 
     
@@ -198,11 +198,6 @@ class LoginViewController: UIViewController, LoginViewModelDelegate {
         bottomConstraint.isActive = true
         
         mainStack.addArrangedSubview(nameApp)
-        
-//        NSLayoutConstraint.activate([
-//            nameApp.heightAnchor.constraint(equalToConstant: 40)
-//        ])
-        
         
         mainStack.addArrangedSubview(setUptextFieldsStacks())
         mainStack.addArrangedSubview(setUpButtonsStack())
@@ -262,7 +257,7 @@ class LoginViewController: UIViewController, LoginViewModelDelegate {
                     self.view.endEditing(true)
                     self.textFieldEmail.text = ""
                     self.textFieldPassword.text = ""
-                    
+
                     let tabBarVC = TabBarViewController(provedor: .normal, email: emailUser)
                     self.navigationController?.pushViewController(tabBarVC, animated: true)
                 }
