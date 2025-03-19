@@ -1,4 +1,15 @@
+# CocoaPods
 Pods/
+
+# Archivos de configuración de macOS
 .DS_Store
-CountriEZ.xcworkspace/xcuserdata/*.xcuserdatad/UserInterfaceState.xcuserstate
-CountriEZ.xcworkspace/xcuserdata/
+
+# Firebase
+GoogleService-Info.plist
+
+# Archivos de usuario de Xcode
+*.xcuserstate
+xcuserdata/
+*.xcworkspace
+DerivedData/
+*.xcscmblueprint

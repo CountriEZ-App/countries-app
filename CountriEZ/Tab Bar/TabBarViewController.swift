@@ -8,12 +8,47 @@
 import UIKit
 
 class TabBarViewController: UITabBarController {
-
+    
+    private let tabBarViewModel: TabBarViewModel
+    
+    private let provedorUser: ProviderUser
+    private let emailUser: String
+    
+    init(provedor: ProviderUser, email: String){
+        self.tabBarViewModel = TabBarViewModel(provedor: provedor)
+        self.provedorUser = provedor
+        self.emailUser = email
+        super.init(nibName: nil, bundle: nil)
+        
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        navigationItem.setHidesBackButton(true, animated: false)
+        setupRightBarButton()
         setupTabBar()
-        // Do any additional setup after loading the view.
+        
+        let defaults = UserDefaults.standard
+        defaults.set(provedorUser == .google ? "google" : "normal", forKey: "proveedor")
+        defaults.set(emailUser, forKey: "email")
+        defaults.synchronize()
+    }
+    
+    private func setupRightBarButton() {
+        let rightButton: UIBarButtonItem = {
+            let button = UIBarButtonItem()
+            button.title = "Log Out"
+            button.style = .done
+            button.target = self
+            button.action = #selector(didTapLogOut)
+            return button
+        }()
+        navigationItem.rightBarButtonItem = rightButton
     }
     
 
@@ -42,6 +77,26 @@ class TabBarViewController: UITabBarController {
         gameVC.tabBarItem.selectedImage = UIImage(systemName: "gamecontroller.circle.fill")
         
         viewControllers = [searchNV, favoriteNV, gameVC]
+    }
+    
+    
+    @objc
+    private func didTapLogOut() {
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: "proveedor")
+        defaults.removeObject(forKey: "email")
+        defaults.synchronize()
+        
+
+        tabBarViewModel.logOut { [weak self] result in
+            if result {
+                print("Sesión cerrada correctamente")
+                self?.navigationController?.popViewController(animated: true)
+            } else {
+                print("Error al cerrar sesión")
+            }
+        }
+        
     }
 
 }
