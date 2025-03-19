@@ -9,6 +9,7 @@ import UIKit
 
 class DetailCountryViewController: UIViewController {
 
+
     private let detailViewModel: DetailCountryView
     
     private lazy var imageFlag: UIImageView = {
@@ -77,6 +78,7 @@ class DetailCountryViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+
         
         setupView()
         
@@ -243,4 +245,5 @@ extension DetailCountryViewController: UITableViewDelegate, UITableViewDataSourc
 //    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
 //        return section == 4 ? 80 : 0
 //    }
+
 }
