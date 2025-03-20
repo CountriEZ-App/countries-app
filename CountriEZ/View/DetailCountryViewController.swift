@@ -12,6 +12,12 @@ class DetailCountryViewController: UIViewController {
 
     private let detailViewModel: DetailCountryView
     
+    
+    private var rightButton: UIBarButtonItem = {
+        let button = UIBarButtonItem(image: UIImage(systemName: "star"), style: .plain, target: nil, action: nil)
+        return button
+    }()
+    
     private lazy var imageFlag: UIImageView = {
         let image = UIImageView()
         image.contentMode = .scaleAspectFit
@@ -78,7 +84,7 @@ class DetailCountryViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         
         setupView()
         
@@ -95,9 +101,13 @@ class DetailCountryViewController: UIViewController {
             }
             
         }
+        // Agregar target y acción aquí
+        rightButton.target = self
+        rightButton.action = #selector(addFavorite)
+        navigationItem.rightBarButtonItem = rightButton
         
-//        tableInformation.tableFooterView = footerTable
-//        setupFooterTable()
+        //        tableInformation.tableFooterView = footerTable
+        //        setupFooterTable()
         
     }
     
@@ -127,6 +137,11 @@ class DetailCountryViewController: UIViewController {
         
     }
     
+//    private func setupRightBarButton() {
+//        rightButton = UIBarButtonItem(title: "Log Out", style: .done, target: self, action: #selector(addFavorite))
+//        navigationItem.rightBarButtonItem = rightButton
+//    }
+    
     private func setupFooterTable () {
         
 //        let label: UILabel = {
@@ -154,6 +169,12 @@ class DetailCountryViewController: UIViewController {
         //Falta completar
     }
 
+    @objc
+    func addFavorite() {
+        let isFavorite = rightButton.image == UIImage(systemName: "star.fill")
+        let newImageName = isFavorite ? "star" : "star.fill"
+        rightButton.image = UIImage(systemName: newImageName)
+    }
 }
 
 //MARK: - TableView
