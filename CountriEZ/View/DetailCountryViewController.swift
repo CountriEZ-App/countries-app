@@ -102,6 +102,7 @@ class DetailCountryViewController: UIViewController {
             
         }
         // Agregar target y acción aquí
+        rightButton.image = UIImage(systemName: detailViewModel.updateImageButton(name: detailViewModel.countryIdentification.nameCommon))
         rightButton.target = self
         rightButton.action = #selector(addFavorite)
         navigationItem.rightBarButtonItem = rightButton
@@ -172,8 +173,18 @@ class DetailCountryViewController: UIViewController {
     @objc
     func addFavorite() {
         let isFavorite = rightButton.image == UIImage(systemName: "star.fill")
-        let newImageName = isFavorite ? "star" : "star.fill"
-        rightButton.image = UIImage(systemName: newImageName)
+
+//        let newImageName = isFavorite ? "star" : "star.fill"
+//        rightButton.image = UIImage(systemName: newImageName)
+        
+        if isFavorite {
+            detailViewModel.deleteCountryToFavorite(name: detailViewModel.countryIdentification.nameCommon)
+            
+        } else {
+            detailViewModel.addCountryToFavorite(name: detailViewModel.countryIdentification.nameCommon, url: detailViewModel.imageFlag)
+        }
+        
+        rightButton.image = UIImage(systemName: detailViewModel.updateImageButton(name: detailViewModel.countryIdentification.nameCommon))
     }
 }
 

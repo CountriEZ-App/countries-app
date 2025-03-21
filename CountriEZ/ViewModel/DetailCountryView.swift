@@ -6,14 +6,24 @@
 //
 
 import UIKit
+import CoreData
 
 class DetailCountryView {
     
+    private let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    
+    var countriesFavorite: [CountryFavorite]?
     
     
     let cellIdentifier = "cell-data"
+    
     let countrySelectedData: DataCountries
     
+    var imageFlag: String {
+        countrySelectedData.flags.nameImagePNG
+    }
+    
+
     var labelInformation: String? {
         countrySelectedData.flags.informationFlag
     }
@@ -47,16 +57,13 @@ class DetailCountryView {
     
     init(countryData: DataCountries) {
         self.countrySelectedData = countryData
-        
+        self.countriesFavorite = loadCountriesFavorites()    
     }
     
-    
-    
-    
-    
+//MARK: - Peticion de la bandera
     func fetchImageFlag (completion: @escaping (UIImage?, Error?) -> Void) {
         
-        guard let url = URL(string: countrySelectedData.flags.nameImagePNG) else { return }
+        guard let url = URL(string: imageFlag) else { return }
         
         let task = URLSession.shared.dataTask(with: url) { data, _, error in
             
@@ -65,6 +72,64 @@ class DetailCountryView {
         }
      
         task.resume()
+    }
+    
+
+//MARK: - CoreData
+    func addCountryToFavorite (name: String, url: String) {
+        let newCountryFavorite = CountryFavorite(context: context)
+        newCountryFavorite.name = name
+        newCountryFavorite.imageURL = url
+        
+        do {
+            try context.save()
+        } catch {
+            print(error.localizedDescription)
+        }
+        
+        countriesFavorite = loadCountriesFavorites()
+        NotificationCenter.default.post(name: NSNotification.Name("FavoritesUpdated"), object: nil)
+
+    }
+    
+    
+    func deleteCountryToFavorite (name: String) {
+        let fetchRequestDelete: NSFetchRequest<CountryFavorite> = CountryFavorite.fetchRequest()
+        fetchRequestDelete.predicate = NSPredicate(format: "name ==[c] %@", name)
+        
+        do {
+            let result = try context.fetch(fetchRequestDelete)
+            if let countryToDelete = result.first {
+                context.delete(countryToDelete)
+                try context.save()
+            } else {
+                print("No se borro nada")
+            }
+        } catch {
+            print(error.localizedDescription)
+        }
+        
+        countriesFavorite = loadCountriesFavorites()
+        NotificationCenter.default.post(name: NSNotification.Name("FavoritesUpdated"), object: nil)
+    }
+    
+    
+    func loadCountriesFavorites () -> [CountryFavorite] {
+        let fetchRequest: NSFetchRequest<CountryFavorite> = CountryFavorite.fetchRequest()
+        
+        do {
+            let countries = try context.fetch(fetchRequest)
+            return countries
+        } catch {
+            print(error.localizedDescription)
+            return []
+        }
+    }
+    
+    
+    func updateImageButton (name: String) -> String {
+        let isFavorite = countriesFavorite?.contains { $0.name == name } ?? false
+            return isFavorite ? "star.fill" : "star"
     }
     
 }
