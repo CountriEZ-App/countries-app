@@ -23,6 +23,7 @@ class DetailCountryView {
         countrySelectedData.flags.nameImagePNG
     }
     
+
     var labelInformation: String? {
         countrySelectedData.flags.informationFlag
     }
@@ -56,12 +57,8 @@ class DetailCountryView {
     
     init(countryData: DataCountries) {
         self.countrySelectedData = countryData
-        self.countriesFavorite = loadCountriesFavorites()
-        
+        self.countriesFavorite = loadCountriesFavorites()    
     }
-    
-    
-    
     
 //MARK: - Peticion de la bandera
     func fetchImageFlag (completion: @escaping (UIImage?, Error?) -> Void) {
@@ -134,8 +131,5 @@ class DetailCountryView {
         let isFavorite = countriesFavorite?.contains { $0.name == name } ?? false
             return isFavorite ? "star.fill" : "star"
     }
-    
-    
-    
     
 }

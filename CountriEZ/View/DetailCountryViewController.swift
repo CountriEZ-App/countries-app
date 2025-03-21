@@ -173,6 +173,7 @@ class DetailCountryViewController: UIViewController {
     @objc
     func addFavorite() {
         let isFavorite = rightButton.image == UIImage(systemName: "star.fill")
+
 //        let newImageName = isFavorite ? "star" : "star.fill"
 //        rightButton.image = UIImage(systemName: newImageName)
         
@@ -184,8 +185,6 @@ class DetailCountryViewController: UIViewController {
         }
         
         rightButton.image = UIImage(systemName: detailViewModel.updateImageButton(name: detailViewModel.countryIdentification.nameCommon))
-
-        
     }
 }
 

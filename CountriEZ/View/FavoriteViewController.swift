@@ -127,4 +127,5 @@ extension FavoriteViewController: UITableViewDelegate, UITableViewDataSource {
             
         }
     }
+
 }
