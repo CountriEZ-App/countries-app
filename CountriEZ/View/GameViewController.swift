@@ -6,6 +6,7 @@
 //
 
 import UIKit
+
 //import QuartzCore
 
 class GameViewController: UIViewController {
@@ -203,5 +204,6 @@ extension GameViewController: UICollectionViewDelegate, UICollectionViewDataSour
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         return !gameViewModel.selectedIndexPaths.contains(indexPath)
     }
+
 
 }
