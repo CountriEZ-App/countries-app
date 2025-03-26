@@ -85,6 +85,10 @@ class DetailCountryViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        if let tabbar = tabBarController?.viewControllers?.first, tabbar.navigationController != self {
+        
+            tabBarController?.navigationItem.rightBarButtonItem?.isHidden = true
+        }
         
         setupView()
         

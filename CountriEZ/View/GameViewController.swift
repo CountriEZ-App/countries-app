@@ -15,12 +15,12 @@ class GameViewController: UIViewController {
 
     var dataGameCountries: [DataCountries] = []
     var gameCountries: ([String], [String]) = ([], [])
-    /*
-    private var rightButton: UIBarButtonItem = {
+    
+    private var rightButtonReset: UIBarButtonItem = {
         let button = UIBarButtonItem(image: UIImage(systemName: "star"), style: .plain, target: nil, action: nil)
         return button
     }()
-    */
+    
     private lazy var collectionGame: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -41,12 +41,12 @@ class GameViewController: UIViewController {
 
         view.backgroundColor = .systemBackground
         
-        /*
-        rightButton.image = UIImage(systemName: "star")
-        rightButton.target = self
-        rightButton.action = #selector(didTapReset)
-        navigationItem.rightBarButtonItem = rightButton
-        */
+        
+        rightButtonReset.image = UIImage(systemName: "arrow.trianglehead.rectanglepath")
+        rightButtonReset.target = self
+        rightButtonReset.action = #selector(didTapReset)
+        navigationItem.rightBarButtonItem = rightButtonReset
+        
         //Colecction
         collectionGame.delegate = self
         collectionGame.dataSource = self
@@ -68,20 +68,7 @@ class GameViewController: UIViewController {
         
     }
 
-/*
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(false, animated: true)
-//        navigationController?.setNavigationBarHidden(true, animated: true)
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        navigationController?.setNavigationBarHidden(true, animated: true)
-//        navigationController?.setNavigationBarHidden(false, animated: true)
-    }
-    
-*/
+
     private func setupCollection () {
         view.addSubview(collectionGame)
         
@@ -92,14 +79,23 @@ class GameViewController: UIViewController {
             collectionGame.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
     }
-    /*
+    
     @objc
     private func didTapReset() {
-        gameCountries = gameViewModel.randomCountries(data: dataGameCountries)
+        gameViewModel.dictionaryGame.removeAll()
         gameViewModel.selectedIndexPaths.removeAll()
+        gameCountries = gameViewModel.randomCountries(data: dataGameCountries)
+        
+        
+        for cell in collectionGame.visibleCells {
+            if let gameCell = cell as? GameCollectionViewCell {
+                gameViewModel.resetCell(to: .systemGray5, cell: gameCell)
+            }
+        }
+        
         collectionGame.reloadData()
     }
-*/
+
 }
 
 extension GameViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
