@@ -18,6 +18,11 @@ class DetailCountryViewController: UIViewController {
         return button
     }()
     
+    private var rightButton2: UIBarButtonItem = {
+        let button = UIBarButtonItem(title: "Location", style: .plain, target: nil, action: nil)
+        return button
+    }()
+    
     private lazy var imageFlag: UIImageView = {
         let image = UIImageView()
         image.contentMode = .scaleAspectFit
@@ -30,6 +35,8 @@ class DetailCountryViewController: UIViewController {
         table.translatesAutoresizingMaskIntoConstraints = false
         return table
     }()
+    
+    private var leftButton: UIBarButtonItem?
     
     private lazy var buttonMap: UIButton = {
         let button = UIButton()
@@ -109,11 +116,15 @@ class DetailCountryViewController: UIViewController {
         rightButton.image = UIImage(systemName: detailViewModel.updateImageButton(name: detailViewModel.countryIdentification.nameCommon))
         rightButton.target = self
         rightButton.action = #selector(addFavorite)
-        navigationItem.rightBarButtonItem = rightButton
+        
+        rightButton2.target = self
+        rightButton2.action = #selector(viewScreenMap)
+        
+        navigationItem.rightBarButtonItems = [rightButton, rightButton2]
         
         //        tableInformation.tableFooterView = footerTable
         //        setupFooterTable()
-        
+//        setupLeftBarButton()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -168,10 +179,20 @@ class DetailCountryViewController: UIViewController {
         tableInformation.tableFooterView = footerTable
     }
 
+    private func setupLeftBarButton() {
+        leftButton = UIBarButtonItem(title: "Location", style: .done, target: self, action: #selector(viewScreenMap))
+        // Agregar el botón de Back junto con el botón personalizado
+            if let backButton = navigationItem.backBarButtonItem ?? navigationController?.navigationBar.backItem?.backBarButtonItem {
+                navigationItem.leftBarButtonItems = [backButton, leftButton!]
+            } else {
+                navigationItem.leftBarButtonItems = [leftButton!]
+            }
+    }
     
     @objc
     func viewScreenMap (){
-        //Falta completar
+        let mapVC = MapViewController(coordinate: detailViewModel.coordinateCountry)
+        present(mapVC, animated: true)
     }
 
     @objc
