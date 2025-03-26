@@ -7,7 +7,7 @@
 
 import UIKit
 
-class TabBarViewController: UITabBarController, UITabBarControllerDelegate, UINavigationControllerDelegate {
+class TabBarViewController: UITabBarController, UITabBarControllerDelegate {
     
     private let tabBarViewModel: TabBarViewModel
     
@@ -32,7 +32,6 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate, UINa
         super.viewDidLoad()
         
         self.delegate = self
-        //        navigationController?.setNavigationBarHidden(true, animated: true)
         navigationItem.setHidesBackButton(true, animated: false)
         setupRightBarButton()
         setupTabBar()
@@ -41,8 +40,7 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate, UINa
         defaults.set(provedorUser == .google ? "google" : "normal", forKey: "proveedor")
         defaults.set(emailUser, forKey: "email")
         defaults.synchronize()
-        
-        updateRightBarButtonVisibility()
+       
     }
     
     
@@ -64,20 +62,21 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate, UINa
         searchVC.tabBarItem.selectedImage = UIImage(systemName: "magnifyingglass.circle.fill")
         
         let searchNV = UINavigationController(rootViewController: searchVC)
-        searchNV.delegate = self
+
         
         favoriteVC.tabBarItem.title = "Favorite"
         favoriteVC.tabBarItem.image = UIImage(systemName: "star")
         favoriteVC.tabBarItem.selectedImage = UIImage(systemName: "star.fill")
         
         let favoriteNV = UINavigationController(rootViewController: favoriteVC)
-        favoriteNV.delegate = self
         
         gameVC.tabBarItem.title = "Game"
         gameVC.tabBarItem.image = UIImage(systemName: "gamecontroller.circle")
         gameVC.tabBarItem.selectedImage = UIImage(systemName: "gamecontroller.circle.fill")
         
-        viewControllers = [searchNV, favoriteNV, gameVC]
+        let gameNV = UINavigationController(rootViewController: gameVC)
+        
+        viewControllers = [searchNV, favoriteNV, gameNV]
     }
     
     
@@ -104,27 +103,14 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate, UINa
     // MARK: - UITabBarControllerDelegate
     
     func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
-        updateRightBarButtonVisibility()
-    }
-    
-    private func updateRightBarButtonVisibility() {
-        rightButton?.isHidden = selectedIndex != 0
-    }
-
-    
-    // MARK: - UINavigationControllerDelegate
-    
-    func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
-        if viewController is SearchViewController {
-            rightButton?.isHidden = false
-            navigationController.setNavigationBarHidden(true, animated: true)
+        if tabBarController.selectedIndex == 1 || tabBarController.selectedIndex == 2 {
+            navigationController?.setNavigationBarHidden(true, animated: true)
         } else {
-            rightButton?.isHidden = true
-//            navigationController.setNavigationBarHidden(false, animated: true)
+            navigationController?.setNavigationBarHidden(false, animated: true)
         }
     }
-
     
+
 }
 
 

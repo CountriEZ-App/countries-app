@@ -28,6 +28,7 @@ class FavoriteViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        navigationItem.title = "Favorites Countries"
         //TableView
         tableFavorite.delegate = self
         tableFavorite.dataSource = self

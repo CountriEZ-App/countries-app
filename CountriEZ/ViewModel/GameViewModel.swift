@@ -9,7 +9,7 @@ import UIKit
 
 class GameViewModel {
     
-    private var dictionaryGame: [String:String] = [:]
+    var dictionaryGame: [String:String] = [:]
     
     var lastSelectedIndexPathEven: IndexPath?
     var lastSelectedIndexPathOdd: IndexPath?

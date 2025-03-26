@@ -132,6 +132,7 @@ class SearchViewController: UIViewController {
         constraints()
         view.backgroundColor = .systemBackground
 
+        navigationController?.setNavigationBarHidden(true, animated: true)
         //Search Bar
         searchBar.delegate = self
         
@@ -149,6 +150,11 @@ class SearchViewController: UIViewController {
                 self.tableView.reloadData()
             }
         }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        tabBarController?.navigationItem.rightBarButtonItem?.isHidden = false
     }
     
     //    MARK: - Constraints
