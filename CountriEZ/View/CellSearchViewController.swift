@@ -19,6 +19,7 @@ class CellSearchViewController: UITableViewCell {
     
     lazy var labelCountry: UILabel = {
         let labelCountry = UILabel()
+        labelCountry.textColor = Theme.textColor
         labelCountry.font = UIFont.systemFont(ofSize: 17, weight: .medium)
         labelCountry.translatesAutoresizingMaskIntoConstraints = false
         return labelCountry

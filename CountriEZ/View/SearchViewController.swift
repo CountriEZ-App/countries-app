@@ -30,6 +30,7 @@ class SearchViewController: UIViewController {
     let label: UILabel = {
         let label = UILabel()
         label.text = "Search Country"
+        label.textColor = Theme.textColor
         label.font = .systemFont(ofSize: 30, weight: .bold)
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -39,6 +40,7 @@ class SearchViewController: UIViewController {
     let labelDetail: UILabel = {
         let label = UILabel()
         label.text = "Selecciona una opcion de busqueda"
+        label.textColor = Theme.textColor
         label.font = .systemFont(ofSize: 15, weight: .light)
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -50,8 +52,8 @@ class SearchViewController: UIViewController {
         let button = UIButton()
         var configuration = UIButton.Configuration.bordered()
         configuration.title = "Name"
-
-        configuration.background.backgroundColor = .systemMint
+        configuration.baseForegroundColor = Theme.textColor
+        configuration.background.backgroundColor = Theme.buttonsColor
         configuration.baseForegroundColor = .black
 
         button.layer.cornerRadius = 10
@@ -68,6 +70,7 @@ class SearchViewController: UIViewController {
         let button = UIButton()
         var configuration = UIButton.Configuration.bordered()
         configuration.title = "Language"
+        configuration.baseForegroundColor = Theme.textColor
         button.layer.cornerRadius = 10
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(searchLanguage), for: .touchUpInside)
@@ -82,6 +85,7 @@ class SearchViewController: UIViewController {
         let button = UIButton()
         var configuration = UIButton.Configuration.bordered()
         configuration.title = "Capital"
+        configuration.baseForegroundColor = Theme.textColor
         button.layer.cornerRadius = 10
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(searchCapital), for: .touchUpInside)
@@ -96,6 +100,7 @@ class SearchViewController: UIViewController {
         let button = UIButton()
         var configuration = UIButton.Configuration.bordered()
         configuration.title = "Region"
+        configuration.baseForegroundColor = Theme.textColor
         button.layer.cornerRadius = 10
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(searchRegion), for: .touchUpInside)
@@ -108,6 +113,10 @@ class SearchViewController: UIViewController {
     
     let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
+        searchBar.searchTextField.backgroundColor = Theme.backgroundColor
+        searchBar.layer.cornerRadius = 12
+        searchBar.layer.masksToBounds = true
+        searchBar.barTintColor = Theme.buttonsColor
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         return searchBar
     }()
@@ -130,8 +139,11 @@ class SearchViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         constraints()
-        view.backgroundColor = .systemBackground
+        
+        view.backgroundColor = Theme.backgroundColor
+        tableView.backgroundColor = Theme.backgroundColor
 
+        
         navigationController?.setNavigationBarHidden(true, animated: true)
         //Search Bar
         searchBar.delegate = self
@@ -143,19 +155,22 @@ class SearchViewController: UIViewController {
         
         
         // Peticion URL
-        searchViewModel.fetchCountries { data, error in
+        APIService.shared.fetchCountries { data, error in
             DispatchQueue.main.async {
                 guard let data = data, error == nil else {return }
                 self.dataCountries = data
                 self.tableView.reloadData()
             }
         }
+        
+        navigationItem.backButtonTitle = "Buscador"
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         tabBarController?.navigationItem.rightBarButtonItem?.isHidden = false
     }
+    
     
     //    MARK: - Constraints
     func setupLabels(){
@@ -262,7 +277,7 @@ class SearchViewController: UIViewController {
         [buttonSearchName, buttonSearchLanguage, buttonSearchCapital, buttonSearchRegion].forEach {
             var config = $0.configuration
             config?.background.backgroundColor = .secondarySystemFill
-            config?.baseForegroundColor = .link
+            config?.baseForegroundColor = Theme.textColor
             $0.configuration = config
         }
     }
@@ -290,10 +305,17 @@ class SearchViewController: UIViewController {
     func configButtonSelected(button: UIButton) {
         resetButtonColors()
         var config = button.configuration
-        config?.background.backgroundColor = .systemMint
+        config?.background.backgroundColor = Theme.buttonsColor
         config?.baseForegroundColor = .black
         button.configuration = config
         tagFilter = button.tag
+        
+        // Actualización de resultados al cambiar de botón
+        if let searchText = searchBar.text, !searchText.isEmpty {
+            isSearch = true
+            searchDataCountry = searchViewModel.filterData(data: dataCountries, tag: tagFilter, text: searchText)
+            tableView.reloadData()
+        }
     }
     
 }
@@ -307,19 +329,11 @@ extension SearchViewController: UISearchBarDelegate {
             tableView.isHidden = true
             animationLottie.isHidden = false
             
-            
         }else{
             isSearch = true
-
-            print("\nUsuario Buscando")
             tableView.isHidden = false
             animationLottie.isHidden = true
-            
             searchDataCountry = searchViewModel.filterData(data: dataCountries, tag: tagFilter, text: searchText)
-            
-            
- 
-
             tableView.reloadData()
         }
     }
@@ -334,10 +348,11 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
+        
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as? CellSearchViewController else {
             return UITableViewCell()
         }
+        cell.backgroundColor = Theme.backgroundColor
         
         let country = isSearch ? searchDataCountry[indexPath.row] : dataCountries[indexPath.row]
         cell.labelCountry.text = country.name.nameCountry
@@ -350,22 +365,22 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
         } else {
             cell.imageCountry.image = nil // Evita imágenes incorrectas en celdas recicladas
             
-            if let imageUrl = URL(string: imageURLString) {
-                URLSession.shared.dataTask(with: imageUrl) { [weak self] data, _, _ in
-                    guard let self = self, let data = data, let image = UIImage(data: data) else { return }
-                    
-                    self.imageCache.setObject(image, forKey: imageURLString as NSString)
-                    
-                    DispatchQueue.main.async {
-                        // Verifica que la celda sigue siendo la misma antes de actualizar la imagen
-                        if let updatedCell = tableView.cellForRow(at: indexPath) as? CellSearchViewController {
+            APIService.shared.fetchImageFlag(urlImage: imageURLString) { [weak self] image, error in
+                guard let self = self else { return }
+                
+                DispatchQueue.main.async {
+                    if let updatedCell = tableView.cellForRow(at: indexPath) as? CellSearchViewController {
+                        if let image = image {
+                            self.imageCache.setObject(image, forKey: imageURLString as NSString)
                             updatedCell.imageCountry.image = image
-
+                        } else {
+                            // Imagen por defecto si falla la descarga
+                            updatedCell.imageCountry.image = UIImage(systemName: "flag.slash")
                         }
                     }
-                }.resume()
+                }
             }
-
+            
         }
         
         return cell
@@ -378,8 +393,8 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
+        tableView.deselectRow(at: indexPath, animated: true)
         let country = searchDataCountry[indexPath.row]
-        print(country.name.nameCountry)
         let detailCountryVC = DetailCountryViewController(country: country)
         navigationController?.pushViewController(detailCountryVC, animated: true)
     }

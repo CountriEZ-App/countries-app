@@ -13,7 +13,7 @@ class GameCollectionViewCell: UICollectionViewCell {
         let label = UILabel()
         label.textAlignment = .center
         label.numberOfLines = 3
-        label.textColor = .black
+        label.textColor = Theme.textColor
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()

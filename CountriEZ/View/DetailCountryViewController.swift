@@ -15,11 +15,13 @@ class DetailCountryViewController: UIViewController {
     
     private var rightButton: UIBarButtonItem = {
         let button = UIBarButtonItem(image: UIImage(systemName: "star"), style: .plain, target: nil, action: nil)
+        button.tintColor = Theme.buttonsColor
         return button
     }()
     
     private var rightButton2: UIBarButtonItem = {
-        let button = UIBarButtonItem(title: "Location", style: .plain, target: nil, action: nil)
+        let button = UIBarButtonItem(image: UIImage(systemName: "map.fill"), style: .plain, target: nil, action: nil)
+        button.tintColor = Theme.buttonsColor
         return button
     }()
     
@@ -55,7 +57,7 @@ class DetailCountryViewController: UIViewController {
     
     private lazy var infoFlagLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = Theme.textColor
         label.numberOfLines = 7
         label.textAlignment = .justified
         label.text = detailViewModel.labelInformation ?? "No information"
@@ -92,6 +94,9 @@ class DetailCountryViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        view.backgroundColor = Theme.backgroundColor
+        tableInformation.backgroundColor = Theme.backgroundColor
+        
         if let tabbar = tabBarController?.viewControllers?.first, tabbar.navigationController != self {
         
             tabBarController?.navigationItem.rightBarButtonItem?.isHidden = true
@@ -105,13 +110,13 @@ class DetailCountryViewController: UIViewController {
         
         navigationItem.title = detailViewModel.countryIdentification.nameCommon
         
-        detailViewModel.fetchImageFlag { [weak self] image, error in
+        APIService.shared.fetchImageFlag(urlImage: detailViewModel.imageFlag) { [weak self] image, error in
             guard let self = self else { return }
             DispatchQueue.main.async {
                 self.imageFlag.image = image ?? UIImage(systemName: "photo")
             }
-            
         }
+        
         // Agregar target y acción aquí
         rightButton.image = UIImage(systemName: detailViewModel.updateImageButton(name: detailViewModel.countryIdentification.nameCommon))
         rightButton.target = self
@@ -122,14 +127,14 @@ class DetailCountryViewController: UIViewController {
         
         navigationItem.rightBarButtonItems = [rightButton, rightButton2]
         
-        //        tableInformation.tableFooterView = footerTable
-        //        setupFooterTable()
-//        setupLeftBarButton()
+        navigationController?.navigationBar.tintColor = Theme.buttonsColor
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(false, animated: true)
+        rightButton.image = UIImage(systemName: detailViewModel.updateImageButton(name: detailViewModel.countryIdentification.nameCommon))
 //        navigationController?.setNavigationBarHidden(true, animated: true)
     }
     
@@ -153,31 +158,6 @@ class DetailCountryViewController: UIViewController {
         
     }
     
-//    private func setupRightBarButton() {
-//        rightButton = UIBarButtonItem(title: "Log Out", style: .done, target: self, action: #selector(addFavorite))
-//        navigationItem.rightBarButtonItem = rightButton
-//    }
-    
-    private func setupFooterTable () {
-        
-//        let label: UILabel = {
-//            let label = UILabel ()
-//            label.text = "Hola Mundo"
-//            label.textColor = .white
-//            label.backgroundColor = .blue
-//            label.translatesAutoresizingMaskIntoConstraints = false
-//            return label
-//        }()
-        
-//        NSLayoutConstraint.activate([
-//            label.leadingAnchor.constraint(equalTo: footerTable.leadingAnchor, constant: 10),
-//            label.trailingAnchor.constraint(equalTo: footerTable.trailingAnchor, constant: -10)
-//        ])
-        
-//        footerTable.addSubview(label)
-        
-        tableInformation.tableFooterView = footerTable
-    }
 
     private func setupLeftBarButton() {
         leftButton = UIBarButtonItem(title: "Location", style: .done, target: self, action: #selector(viewScreenMap))
@@ -198,9 +178,6 @@ class DetailCountryViewController: UIViewController {
     @objc
     func addFavorite() {
         let isFavorite = rightButton.image == UIImage(systemName: "star.fill")
-
-//        let newImageName = isFavorite ? "star" : "star.fill"
-//        rightButton.image = UIImage(systemName: newImageName)
         
         if isFavorite {
             detailViewModel.deleteCountryToFavorite(name: detailViewModel.countryIdentification.nameCommon)
@@ -253,7 +230,11 @@ extension DetailCountryViewController: UITableViewDelegate, UITableViewDataSourc
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: detailViewModel.cellIdentifier, for: indexPath)
+        cell.backgroundColor = Theme.backgroundColor
+        
         var content = cell.defaultContentConfiguration()
+        content.textProperties.color = Theme.textColor
+        content.secondaryTextProperties.color = Theme.textColor
         
         switch indexPath.section {
         case 0:
@@ -289,30 +270,9 @@ extension DetailCountryViewController: UITableViewDelegate, UITableViewDataSourc
         cell.contentConfiguration = content
         return cell
     }
-
     
-//    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-//        guard section == 4 else { return nil } // Solo en la sección 4
-//        
-//        let view = UIView()
-//        view.backgroundColor = .cyan
-//        view.translatesAutoresizingMaskIntoConstraints = false
-//        
-//        view.addSubview(buttonMap)
-//        
-//        NSLayoutConstraint.activate([
-//            buttonMap.topAnchor.constraint(equalTo: view.topAnchor, constant: 8),
-//            buttonMap.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -8),
-//            buttonMap.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-//            buttonMap.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
-////        ])
-//        
-//        return view
-//    }
-//
-//    
-//    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-//        return section == 4 ? 80 : 0
-//    }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
 
 }

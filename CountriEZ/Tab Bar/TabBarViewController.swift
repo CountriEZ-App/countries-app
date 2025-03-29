@@ -46,6 +46,14 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate {
     
     private func setupRightBarButton() {
         rightButton = UIBarButtonItem(title: "Log Out", style: .done, target: self, action: #selector(didTapLogOut))
+        rightButton?.tintColor = Theme.buttonsColor
+        // Cambiar fuente a bold y tamaño
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 19, weight: .heavy) // Aquí defines tamaño y grosor
+        ]
+        
+        rightButton?.setTitleTextAttributes(attributes, for: .normal)
+        rightButton?.setTitleTextAttributes(attributes, for: .highlighted)
         navigationItem.rightBarButtonItem = rightButton
     }
 
@@ -62,7 +70,7 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate {
         searchVC.tabBarItem.selectedImage = UIImage(systemName: "magnifyingglass.circle.fill")
         
         let searchNV = UINavigationController(rootViewController: searchVC)
-
+        
         
         favoriteVC.tabBarItem.title = "Favorite"
         favoriteVC.tabBarItem.image = UIImage(systemName: "star")
@@ -77,6 +85,9 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate {
         let gameNV = UINavigationController(rootViewController: gameVC)
         
         viewControllers = [searchNV, favoriteNV, gameNV]
+        
+        tabBar.tintColor = Theme.buttonsColor 
+        tabBar.unselectedItemTintColor = Theme.buttonsColor
     }
     
     
@@ -90,7 +101,6 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate {
         
         tabBarViewModel.logOut { [weak self] result in
             if result {
-                print("Sesión cerrada correctamente")
                 self?.navigationController?.popViewController(animated: true)
             } else {
                 print("Error al cerrar sesión")

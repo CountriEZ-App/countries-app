@@ -35,26 +35,6 @@ class GameViewModel {
         return (names, capitals)
     }
     
-    
-    // MARK: - Petición a la API
-    func fetchCountries(completion: @escaping([DataCountries]?, Error?) -> Void) {
-        guard let url = URL(string: "https://restcountries.com/v3.1/all") else { return }
-
-        URLSession.shared.dataTask(with: url) { data, _, error in
-            guard let data = data, error == nil else {
-                completion(nil, error)
-                return
-            }
-            
-            do {
-                let dataCountry = try JSONDecoder().decode([DataCountries].self, from: data)
-                completion(dataCountry, nil)
-            } catch {
-                print("Error al decodificar:", error)
-            }
-        }.resume()
-    }
-    
 
 //MARK: - Logica Juego
     
@@ -70,11 +50,9 @@ class GameViewModel {
     func informationOfItemSelected(at item: Int, indexPath: IndexPath, text: String) {
         if item%2 == 0{
             lastSelectedIndexPathEven = indexPath
-            print("Se asigna el nombre del pais")
             countryText = text
         }else {
             lastSelectedIndexPathOdd = indexPath
-            print("Se asigna el nombre de la capital")
             capitalText = text
         }
     }
@@ -92,10 +70,7 @@ class GameViewModel {
     func correctItemsSelected (to color: UIColor, cell: GameCollectionViewCell, lastItem: IndexPath) {
         resetCell(to: color, cell: cell)
         
-        if selectedIndexPaths.contains(lastItem) {
-            print("Este item ya está seleccionado y deshabilitado.")
-        }else {
-            print("Se guarda el item en selecciones inhabilitadas")
+        if !selectedIndexPaths.contains(lastItem) {
             selectedIndexPaths.insert(lastItem)
         }
     }
