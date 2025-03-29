@@ -28,6 +28,9 @@ class FavoriteViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        view.backgroundColor = Theme.backgroundColor
+        tableFavorite.backgroundColor = Theme.backgroundColor
+        
         navigationItem.title = "Favorites Countries"
         //TableView
         tableFavorite.delegate = self
@@ -73,8 +76,9 @@ extension FavoriteViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: favoriteViewModel.favoriteCell, for: indexPath)
-        
+        cell.backgroundColor = Theme.backgroundColor
         var content = cell.defaultContentConfiguration()
+        content.textProperties.color = Theme.textColor
         content.text = favoriteViewModel.countriesFavorites[indexPath.row].name
         
         favoriteViewModel.fetchImageFavorite(index: indexPath.row, completion: { image, error in
@@ -110,6 +114,9 @@ extension FavoriteViewController: UITableViewDelegate, UITableViewDataSource {
     }
  
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        tableView.deselectRow(at: indexPath, animated: true)
+        
         let countryName = favoriteViewModel.countriesFavorites[indexPath.row].name
         
         guard let name = countryName else {return}

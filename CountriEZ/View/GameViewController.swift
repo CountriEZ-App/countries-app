@@ -17,7 +17,8 @@ class GameViewController: UIViewController {
     var gameCountries: ([String], [String]) = ([], [])
     
     private var rightButtonReset: UIBarButtonItem = {
-        let button = UIBarButtonItem(image: UIImage(systemName: "star"), style: .plain, target: nil, action: nil)
+        let button = UIBarButtonItem(image: UIImage(systemName: "arrow.2.squarepath"), style: .plain, target: nil, action: nil)
+        button.tintColor = Theme.buttonsColor
         return button
     }()
     
@@ -39,10 +40,9 @@ class GameViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = Theme.backgroundColor
+        collectionGame.backgroundColor = Theme.backgroundColor
         
-        
-        rightButtonReset.image = UIImage(systemName: "arrow.trianglehead.rectanglepath")
         rightButtonReset.target = self
         rightButtonReset.action = #selector(didTapReset)
         navigationItem.rightBarButtonItem = rightButtonReset
@@ -57,7 +57,7 @@ class GameViewController: UIViewController {
         
         
         // Peticion URL
-        gameViewModel.fetchCountries { data, error in
+        APIService.shared.fetchCountries { data, error in
             DispatchQueue.main.async {
                 guard let data = data, error == nil else {return }
                 self.dataGameCountries = data
@@ -98,6 +98,7 @@ class GameViewController: UIViewController {
 
 }
 
+//MARK: - CollectionView
 extension GameViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return gameCountries.0.count + gameCountries.1.count
@@ -108,6 +109,9 @@ extension GameViewController: UICollectionViewDelegate, UICollectionViewDataSour
                 return UICollectionViewCell()
             }
 
+        cell.contentView.backgroundColor = Theme.itemCollection
+        cell.label.textColor = Theme.textColor
+        
         // Mostrar nombres de países y capitales en diferetes columnas
         if indexPath.item%2 == 0 {
             cell.label.text = gameCountries.0[indexPath.item / 2]
@@ -129,19 +133,16 @@ extension GameViewController: UICollectionViewDelegate, UICollectionViewDataSour
         // Volver al color original si hay una celda previamente seleccionada
         if indexPath.item%2 == 0 {
             if let lastIndexPath = gameViewModel.lastSelectedIndexPathEven, !lastIndexPath.isEmpty, let lastCell = collectionView.cellForItem(at: lastIndexPath) as? GameCollectionViewCell {
-                print("Ya hay un pais seleccionado cambia al nuevo")
-                gameViewModel.resetCell(to: .systemGray5, cell: lastCell)
+                gameViewModel.resetCell(to: Theme.itemCollection, cell: lastCell)
             }
         } else {
             if let lastIndexPath = gameViewModel.lastSelectedIndexPathOdd, !lastIndexPath.isEmpty, let lastCell = collectionView.cellForItem(at: lastIndexPath) as? GameCollectionViewCell{
-                print("Ya hay una capital seleccionada cambia al nuevo")
-                gameViewModel.resetCell(to: .systemGray5, cell: lastCell)
+                gameViewModel.resetCell(to: Theme.itemCollection, cell: lastCell)
             }
         }
         
         //Verde al seleccionar
-        print("Se selecciono \(String(describing: cell.label.text)) (color vede)")
-        gameViewModel.resetCell(to: .systemGreen, cell: cell)
+        gameViewModel.resetCell(to: Theme.correctAnswer, cell: cell)
 
         //Informacion del item seleccionado
         guard let text = cell.label.text else {return}
@@ -163,15 +164,11 @@ extension GameViewController: UICollectionViewDelegate, UICollectionViewDataSour
                let lastIndexPathObb = gameViewModel.lastSelectedIndexPathOdd,
                let lastCellObb = collectionView.cellForItem(at: lastIndexPathObb) as? GameCollectionViewCell {
                 
-                print("Pais color azul")
-                gameViewModel.correctItemsSelected(to: .systemBlue, cell: lastCellEven, lastItem: lastIndexPathEven)
+                gameViewModel.correctItemsSelected(to: Theme.correctAnswer, cell: lastCellEven, lastItem: lastIndexPathEven)
                 
-                print("Capital color azul")
-                gameViewModel.correctItemsSelected(to: .systemBlue, cell: lastCellObb, lastItem: lastIndexPathObb)
+                gameViewModel.correctItemsSelected(to: Theme.correctAnswer, cell: lastCellObb, lastItem: lastIndexPathObb)
                 
                 gameViewModel.resetInformacion()
-                print(gameViewModel.lastSelectedIndexPathEven ?? "No hay nada en par")
-                print(gameViewModel.lastSelectedIndexPathOdd ?? "No hay nada en impar")
             }
             
         }
@@ -182,16 +179,12 @@ extension GameViewController: UICollectionViewDelegate, UICollectionViewDataSour
                let lastCellEven = collectionView.cellForItem(at: lastIndexPathEven) as? GameCollectionViewCell,
                let lastIndexPathObb = gameViewModel.lastSelectedIndexPathOdd,
                let lastCellObb = collectionView.cellForItem(at: lastIndexPathObb) as? GameCollectionViewCell{
-                print("Pais color rojo-gris")
-                gameViewModel.incorrectItemsSelected(to: .systemRed, to: .systemGray5, cell: lastCellEven)
-                print("Capital color rojo-gris")
                 
-                gameViewModel.incorrectItemsSelected(to: .systemRed, to: .systemGray5, cell: lastCellObb)
+                gameViewModel.incorrectItemsSelected(to: Theme.wrongAnswer, to: Theme.itemCollection, cell: lastCellEven)
+                
+                gameViewModel.incorrectItemsSelected(to: Theme.wrongAnswer, to: Theme.itemCollection, cell: lastCellObb)
                 
                 gameViewModel.resetInformacion()
-                print(gameViewModel.lastSelectedIndexPathEven ?? "No hay nada en par")
-                print(gameViewModel.lastSelectedIndexPathOdd ?? "No hay nada en impar")
-                
             }
         }
     }

@@ -60,20 +60,6 @@ class DetailCountryView {
         self.countriesFavorite = loadCountriesFavorites()    
     }
     
-//MARK: - Peticion de la bandera
-    func fetchImageFlag (completion: @escaping (UIImage?, Error?) -> Void) {
-        
-        guard let url = URL(string: imageFlag) else { return }
-        
-        let task = URLSession.shared.dataTask(with: url) { data, _, error in
-            
-            guard let data = data, let image = UIImage(data: data), error == nil else { return }
-            completion (image, nil)
-        }
-     
-        task.resume()
-    }
-    
 
 //MARK: - CoreData
     func addCountryToFavorite (name: String, url: String) {

@@ -25,7 +25,6 @@ class MapViewModel {
     func didTapLocationButton() {
         let locationCountry = CLLocationCoordinate2D(latitude: coordinateCuntry[0],
                                                      longitude: coordinateCuntry[1])
-//        print("Ubicación de la pizzería al tocar su boton: \(locationCountry.latitude), \(locationCountry.longitude)")
         delegate?.showLocation(location: locationCountry)
     }
 }
